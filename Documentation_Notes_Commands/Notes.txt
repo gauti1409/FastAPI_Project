@@ -1,0 +1,699 @@
+---------STARTING STEPS---------------------------
+
+The code below is referred to as the Path Operation or Route. 
+1. To make the function act like an API, we will have to use a decorator(@). 
+The decorator turns this function into an actual path operation, so that someone who wants to use our API can hit this endpoint.
+
+2. Everytime you make a change to the code, to reflect it on the webpage, you will have to restart the server.
+
+3. To automatically reload the made changes without restarting the server, we will have to use the below command:
+"uvicorn main:app --reload". This command can be used for a developer environment but not in the production environment since we won't be 
+making changes to the production environment.
+
+4. FastAPI goes through the code and looks for the match in the HTTP and URL in path operations. 
+As soon as it gets the first match in the path operations, it will run only the first path operation. 
+If there are any other path operations with the same HTTP and URL, then they won't run. 
+So the order of path operations is very very important in FastAPI. 
+
+API Endpoint : In summary, an API endpoint is a specific location within an API that accepts requests and sends back responses. 
+It’s a way for different systems and applications to communicate with each other, by sending and receiving information and instructions 
+via the endpoint.
+It allows developers to access data and functionality from other systems, and to create new apps that can easily access and use data and 
+functionality from other systems, without having to build everything from scratch.
+
+5. GET Requests are getting data from the API Server whereas a POST request is sending the data to the API Server.
+
+6. Body in POST request is going to extract all the fields from the body and convert it into a python dictionary and it's going to store 
+inside a variable name 'payload'.  
+
+7. So, we not only send data in the body within a Postman request, we are also able to extract that data and send it right back to 
+the user.
+
+8. In a real application, we would take the data and then we would normally store that data inside our database, 
+so that we can create a new post stored in the database. And then, now anytime user tries to retrieve the post, 
+we can fetch that data from the DB. 
+
+9. Why we need a Schema:
+- It's difficult to extract all the values from the body and extract each one individually.
+- The client can send whatever data they want and we don't want user to send arbitrary data.
+- To make sure that we get the data validated, whatever data is sent by the user.
+- We ultimately want to force the client to send data in a schema that we expect. 
+- And the way we want to work with the APIs is, we want to explicitly define what the data should look like, so that the 
+frontend can send you exactly what you expect it. 
+
+----------------------------------------------------
+
+-----PYDANTIC INTRO----------------
+
+9. Pydantic is it's own library and has nothing to do with FastAPI. It's is own complete and separate library that we can use  
+with any of our Python applications. FastAPI just makes use of it so that we can define a schema.   
+
+10. A Pydantic BaseModel is a class that defines how your data looks like and the validation requirements it needs to pass in order 
+to be valid.
+For further information see https://docs.pydantic.dev/latest/
+
+11. So, we are going to pass the "Post" BaseModel to the path operation "createposts". As a result of this, FastAPI is automatically 
+going to validate the data that it receives from the client based off of this model. 
+
+12. In this course, we are going to use the Pydantic models to ensure that the schemas not only receiving data from the front end, 
+but also sending data back is all matching up with our organized schema. 
+
+13. We can use model_dump() function to convert the Pydantic model into a dictionary so as to send back the dictionary if we want to.
+
+-----------------------------------------------------------------------------------------
+
+-------INTRO TO CRUD APPLICATION -------------------------
+
+14. This also covers the STANDARD CONVENTIONS required to build an API for a CRUD based application. 
+
+15. CRUD:  Create, Read, Update, Delete
+
+- CREATE: POST
+
+- READ: GET
+
+- UPDATE: PUT/PATCH; 
+1. PUT: When we use PUT, we pass all of the information for updating it. So, all of the fields have to be sent to the API server.
+2. PATCH: We can just send the specific field that we want to change. 
+
+- DELETE: DELETE 
+
+16. Refer to the screenshot in FastAPI folder naming "CRUD_Operations_diagram" for Standardisation for naming endpoints in an API and 
+other details.
+
+-----------------------------------------------------------------
+
+---------IMPLEMENTING A FUNCTION TO RETRIEVE ONE POST----------------
+
+- @app.get("/post/{id}") : The ID field is referred to as "Path Parameter" in API terminology.
+
+- Important Note: Anytime we are passing a path parameter into a function, it is always going to be returned as a string.
+We will have to typecast it to convert it into an integer.
+
+- To perform any kind of validation and conversion on the path parameter, for e.g: checking if the input given by user is integer or not 
+and if it validates with "id". So, we can perform validation with FastAPI. For eg: "def get_post(id: int):".
+
+So, first FastAPI is going to validate that the input id given by User can be converted to an integer or not. Once it validates, it will
+convert it into an integer for us. So, we no longer have to typecast this "id" variable. 
+And hence, Frontend will also get a good way of understanding of where they went wrong.
+
+----------------------------------------------------------------------------
+
+-------HOW ORDER MATTERS WITHIN FASTAPI----------------------------------
+
+@app.get("/posts/{id}")
+def get_post(id: int):
+    post = find_post(id)
+    return {"post_detail": post}
+
+
+@app.get("/posts/latest")
+def get_latest_post():
+    post = my_posts[len(my_posts)-1]
+    return {"post_detail": post}
+
+- The order in FASTAPI works from TOP to BOTTOM.
+- In above, if we try to run the "latest" path operation, we will get an error. 
+- So, when we send the request, FASTAPI is going to go to all of our paths from top and it's going to find the first match.
+- When it checks for the specific path, the request doesn't know which path it has to refer to. So, the first path operations 
+it encounters is posts/{id}, which then further tries to validate the input and throws the error as "latest" cannot be converted into an 
+integer.
+- THIS IS THE EXAMPLE OF WHERE ORDER MATTERS.
+- Structure your API in such a way so that it doesn't run into such issues.
+- To resolve above issue, just change the order of the functions defined. Put "latest" one above "id" one.
+
+------------------------------------------------------------------------------------------------------------------
+
+-------IF AN ID DOESN'T EXIST----------------------------------
+
+- Return the "404 NOT FOUND" statement HTTP Code, if the requested id from user is not found or does not exist.
+- We will have to manipulate the Response so as to implement the "404 NOT FOUND" for an unavailable id.
+
+- Raise a HTTP Exception: It is a built in exception into FASTAPI. We can pass the specific error code we want as well as the message.
+And in that way, we don't have to hard code any message for this. 
+
+
+------------------------------------------------------------------------------------------------------------------
+
+-------TO DELETE AN ID----------------------------------
+- When you delete a particular Id, you will use 204 HTTP Status code to send as a status response code but remember not to send any data
+back. 
+
+- Raise a HTTP Exception if there is no valid ID found.
+
+- Try to return the HTTP Response - 204_NO_CONTENT, which is the standard HTTP response for DELETE.
+
+- The delete endpoint will be different from the other endpoints but probably will have the same kind of code getting repeated on my_posts
+of the projects. So, remember it clearly.
+------------------------------------------------------------------------------------------------------------------
+
+-------DOCUMENTATION OF FAST API----------------------------------
+
+- The documentation of the FASTAPI gets generated automatically and we don't have to worry about updating documentation separately.
+- To see the documentation of the written API, just go the link: http://127.0.0.1:8000/docs.
+- The above link shows you the built in documentation powered by Swagger UI. 
+- So FastAPI has built in swagger UI support, and it automatically generates all of the routes, and documentation for all of your paths.
+- We can also test things out using Swagger UI in the built in documentation.
+- We can also use the link : http://127.0.0.1:8000/redoc. This presents a different format of the FastAPI documentation using redoc.
+
+- Till here we have a basic understanding of how to work with FASTAPI and how to set up basic routes and work with path operations.
+
+------------------------------------------------------------------------------------------------------------------
+
+-------DATABASES----------------------------------
+
+- A database is a collection of organized data that can be easily accessed and managed. 
+- We never interact with databases directly. Instead we make use of a software referred to as Database Management System(DBMS).
+So when we want to perform an operation on a DB, we are going to send that request to a DBMS, that management system is then going
+to actually perform that operation, and then it's going to send the result back to us.
+- SQL: Langauage used to communicate with DBMS.
+- Each instance of Postgrescan be carved into multiple separate databases.
+
+- A table represents a subject or event in an application. 
+- Imporatant Note: When you design your database, you need to figure out what are the relationships beforehand between different tables, 
+so that we can design a very efficient database. 
+
+- VERY VERY IMPORTANT NOTE: 
+When you are working with postgres, especially with an API, where we want to create a new post, like our application, the General
+Convention in an API is - Once we create a new post, we want to return that data back to whoever sent that request to the API. 
+So we want to get that brand newly created post, with the new fields like created_at fields and all the default values, and send it back 
+to the client or the front end.  
+
+So how do we get Postgres to automatically return that post to the front end? 
+1. Using SELECT * FROM table statement.
+2. INSERT into products(name, price, inventory) VALUES ('car', 10000, 100) RETURNING *
+3. insert into fastapi_db.public.products (product_name, price, inventory) 
+values ('car', 10000, 100),('laptop',50, 25), ('monitor', 60, 4) 
+returning *;
+
+
+NOTE: In statement 2 above, the RETURNING Keyword returns the newly created item or items, and after the keyword we have to specify
+the columns that we want for the newly returned items. Using * returns every single column.
+
+- USING RETURNING WITH DELETE KEYWORD TO SEE WHAT THE DELETING RECORD LOOKED LIKE:
+DELETE FROM products WHERE product_id in (10,11) RETURNING *;
+
+--UPDATING RECORDS WITH RETURNING KEYWORD:
+UPDATE products SET product_name='flour tortilla', price=40 WHERE product_id = 19 RETURNING *;
+update products set is_sale = true where product_id = 5 returning *;
+
+------------------------------------------------------------------------------------------------------------------
+
+-------ESTABLISHING A CONNECTION WITH POSTGRES DATABASE----------------------------------
+
+- A connection to a Database can fail. Potential reasons could be:
+1. DB is unreachable or DB is down. 
+2. Wrong password etc.
+
+So, to deal with issues where our Python code could potentially fail, we will always cover that patch of code in TRY/EXCEPT Block. 
+
+- We will use the RealDictCursor to get the columns of the tables or keys of the dictionary in the given argument.
+RealDictCursor is a specialized DictCursor that enables to access columns only from keys (aka columns name), 
+whereas DictCursor enables to access data both from keys or index number.
+The main advantage of real dictionary cursor is the easiness to get a query output as json.
+
+- IMPORTANT NOTE: 
+There is no point in having our server up and runnning if we cannot access our Database. Whenever we will have our server up,
+we will first have to make sure that it is connected to the Database and then the rest of the operations in the script happens.
+
+- FETCHALL: Fetches all the records from the table.
+- FETCHONE: Fetches only one record from the table using a specified column. 
+NOTE: We can also use FETCHALL for fetching one id, but it will just keep searching through the database for another post with that ID.
+
+- WHILE INSERTING THE DATA USING PYTHON CODE IN SQL DATABASE:(Check create_posts function)
+1. We never want to do any kind of string interpolation and then pass in the values of post directly into the query written in 
+Python code. Instead, we are going to parameterize or sanitize all the data that we put into the SQL statement.
+
+--VERY VERY IMPORTANT NOTE:
+- WHY to use %s method instead of f-string method while writing the INSERT, SELECT SQL queries?
+Ans: 
+1. f-string method would technically work. But it would make the application vulnerable to SQL INJECTION. The user could try to
+exploit the DB using SQL query, if the f-string method is applied, and could manipulate the data within our SQL DB. Thta's why it'same
+never good to pass the data directly using f-string method. 
+
+2. A SQL INJECTION attack consists of insertion or "injection" of a SQL query via the input data from the client to the application.
+A successful SQL injection exploit can read sensitive data from the database, modify database data (Insert/Update/Delete), 
+execute administration operations on the database (such as shutdown the DBMS), recover the content of a given file present on the 
+DBMS file system and in some cases issue commands to the operating system. SQL injection attacks are a type of injection attack, 
+in which SQL commands are injected into data-plane input in order to affect the execution of predefined SQL commands.
+
+3. The Postgres library, psycopg2, can sanitize the inputs in Python Code for SQL query. So when we use %s method, it will make sure that
+no weird SQL Commands are being passed and also makes sure that the app is not vulnerable to SQL injection. 
+
+- Why only %s is used in the query not %d?
+Ans: As the whole query needs to be in a string format while execution of query so %s should be used.
+After query is executed integer value is retained. See the bookmark saved on this. 
+
+------------------------------------------------------------------------------------------------------------------
+
+VERY VERY IMPORTANT TOPIC:
+
+-------OBJECT RELATIONAL MAPPER(ORM)----------------------------------
+
+1. When it comes to working with a DB within a Python application or any app across any language, there's a couple of different ways of 
+interacting with the DB.
+
+2. First, we saw how we can use the deafult Postgres Driver to talk to a default Postgres DB by sending SQL Commands.
+Since it's easy to use raw SQL, so we can send that directly to Postgres using whatever the default Postgres drivers for your specific
+programming language.
+
+3. One of the popular ways of working with the databases is using OBJECT RELATIONAL MAPPER(ORM).
+
+4. ORM is a layer of abstraction that sits between the database and our FAST API application. So, we never talk directly to a database
+anymore. Intsead, we talk to the ORM. And then the ORM will actually talk to our database.
+
+5. One of the benefits of using ORM is we don't have to use SQL anymore. Instead of using raw SQL, we will use standard Python code,
+calling various functions and methods that alternately translate into SQL themselves. 
+
+6. See ORM Screenshot 1. FastAPI will actually use regular Python code to send specific commands to an ORM. And then the ORM will take
+that Python code and convert it into regular SQL, and then using the same database driver that we are using, that is Psycopg2, it will
+talk to the DB. And then it will eventually send the result back to us, because DBs can only talk SQL. 
+
+7. See screenshot 2 - What ORMs can do. Instead of manually defining tables in postgres, we can define our tables in Python Modules.
+Queries can be made using regular Python code. So we can actually chain on different methods to construct various SQL queries. 
+
+8. SQLALCHEMY is one of the most popular python ORMs. It is a standalone library and has no association with FASTAPI. It can be used with 
+any other Python web frameworks or any python based application. 
+
+9.Remember, an ORM has the code for us to write Python, define all the models etc. But it doesn't actually know how to talk to a database.
+It actually needs a database driver. 
+
+Note for Myself: Understand the database.py commands for SQLALCHEMY to get a better understanding of how it is working.
+
+Step 1: Create a database.py file to set up the connection with Postgres DB.
+
+Step 2: Now we have to define our tables in models.py.
+
+10. Session object is responsible for talking with databases. So, we created a function get_db in main.py where we actually 
+get a connection to our database, or get a session to our database. And so everytime we get a request, we are going to get a session,
+we are going to be able to send SQL statements to it. And after the request is done, we will close it out.
+And we will keep calling this function everytime we get a request to any of our API endpoints. 
+
+11. Now, for all of our path operations, where we want to perform some kind of operations on the DB, we are going to pass in another 
+parameter inside the path function, and it's going to be - db:Session=Depends(get_db). This line is going to create that session to our 
+DB, that we can perform some operations and then close it once that request is done. And then we can repeat the process for every single
+one of our path operations. 
+
+12. LIMITATION OF SQLALCHEMY:
+SQLALCHEMY will generate your tables for the first time, that is, when the table is not present in the DB, based on the defined rules in 
+the models.py. However, if the table already exists and if we update the table for anything, like acolumn addition etc. then SQLALCHEMY
+is not going to touch it. So, it's not going to help us modify tables once it is created. We will have to delete it manually from the
+Database and then run the python script again to create it in DB. 
+
+13. Normally, when it comes to creating tables or when it comes to handling migrations, a term used for changing the columns or schemas
+of the tables, then you want to use another software called ALEMBIC. 
+SQLALCHEMY isn't really made for handling database migrations, we have to do it manually. 
+
+14. DIFFERENCES BETWEEN A SCHEMA/PYDANTIC MODEL AND ORM/SQLALCHEMY MODEL:
+- See the screenshot 1 and 2 in folder difference between Pydantic models and SQLALCHEMY.
+- Technically, we don't need Pydantic models. But when it comes to building out APIs, you want to be as strict as possible when it comes
+to what kind of data can we receive and send to the user. And so Pydantic, just ensures that everything just matches up with what we 
+expect.
+
+-------------------------------------------------------------------------------------------------------------------------
+
+-------PYDANTIC MODELS DEEPDIVE----------------------------------
+
+- We can have two different classes, that is, CreatePost and UpdatePost, for each specific request which is create and update posts 
+respectively. And it's a perfectly valid use case because when it comes to creating the user should provide a certain amount of fields.
+And updating it might be completely different. 
+
+- Assume in our app, we want to make the update functionalu+ity in such a way that the user can't even update a post, they can update
+only one property. For eg: published column in UpdatePost class. 
+
+- How to send a Response back from FastAPI to the User?
+Ans: We need to define a pydantic or schema model to define the exact shape of the response. And this is required since at times, we don'T
+want to send all of the properties and attributes from our post table to the user. This is done to keep the information confidential from user,
+so that he/she knows only what the user needs to know about, nothing else.
+For eg: When a user logs in, we don't want to send back his password as a response. The user already knows his/her password.
+
+- In Pydantic models, orm_mode=True will tell the Pydantic models to read the data even if it is not a dict, but an ORM Model(or any other
+arbitrary object with attributes).
+
+- model_dump(): This is the primary way of converting a model to a dictionary. Sub-models will be recursively converted to dictionaries. instead,
+of orm_mode=true, we can use this option and it will convert any arbitrary object with attributes into a dictionary. And Pydantic models will
+work well with this, since it knows only how to work with dictionaries. 
+
+- Make sure to change the response_model code for GET ALL POSTS as you are trying to get the list of all posts. So, we will be using a LIST library
+from optional package to convert the response_model into a list and send it back to the user.
+
+-------------------------------------------------------------------------------------------------------------------------
+
+-------CREATING USER FUNCTIONALITY----------------------------------
+
+- User being able to create an account
+- being able to log in
+- create posts with specific to their account
+
+- We will create a new path operation so that a user can actually send his username and password to our API and then we can actually
+generate that user.
+
+- Problem with ID in Users SQL ALCHEMY Table with inserting records from the application if there are users already present in the table.
+Go the link to understand the issue: 
+1. https://stackoverflow.com/questions/37970743/postgresql-unique-violation-7-error-duplicate-key-value-violates-unique-const/37972960#37972960
+2. https://stackoverflow.com/questions/40280158/postgres-sqlalchemy-auto-increment-not-working
+
+- We never store the full password in the database, so we usually hash the password and store the hash of it in DB. Before we create the user,
+we have to create the hash of the password.
+
+- Using passlib[bcrypt] for hashing the password in DB. Moved the hashing logic in utils.py file.
+
+- Get the USER by ID: Now we will set up a route or a path operation that allows you to fetch and retrieve information about a user 
+based off their ID.
+1. It can be a part of the authentication process. So depending on how we set up the frontend, if we decided to set up JWT tokens to get sent 
+as cookies, then the frontend may not actually know whether it's logged in or not. 
+2. And a lot of times you will see some APIs have an endpoint to let you kind of retrieve information about your own account. If you are 
+able to access it, that means you are logged in. If not, then you need to fecth a new token.
+
+-------------------------------------------------------------------------------------------------------------------------
+
+-----------------------ROUTERS----------------------------------
+--ROUTER INTORDUCTION:
+What fastapi docs says about routers: If you are building an application or a web API, it’s rarely the case that you can put everything 
+on a single file. FastAPI provides a convenience tool to structure your application while keeping all the flexibility.
+
+- We will use Router object to split up all of our routes or path operations into different files and then we import them by calling
+"app.include_router(post.router)" and then the specific router object of that file(mentioned in brackets).
+
+- In this section, we will see how we can use Routers to actually split up all of our path operations so that we can organize our code a little 
+bit better.
+
+- Create a folder naking "routers" and create post.py and users.py files in it. Cut and paste the post routes in post.py and user routes in 
+users.py file. Refactor the changes related to import of libraries and respective notebooks. Vscode does it automatically as well. 
+
+- We will make a router object in users.py and post.py and replace the @app command with @router command. 
+
+- Main reason for including a Router: When we get a HTTP Request, we will go in the main.py file and will encounter the first app object, which is
+"post.router", which we have referenced. And that includes every router that is mentioned in the "post.py" file. Then the HTTP request will go
+into the "post.py" file and "it's going to look into the Specific request match what the user has sent to the API and gets the response back
+as the API normally does". And that's how we break out our code into separate files.
+
+LOG INFO : INFO:     127.0.0.1:60108 - "POST /users HTTP/1.1" 307 Temporary Redirect- See and get info on this log info. 
+-------------------------------------------------------------------------------------------------------------------------
+
+-----------------------JWT(JSON WEB TOKENS)(very very important)----------------------------------
+
+- One of the most important topics when building out an API or any application is Authentication. There is 2 main ways to tackle authentication
+when working for an API or for any application:
+
+1. Session based authentication: The idea is, we store something on our backend server or API in this case, to track whether a user is logged in 
+or not. So, there's some piece of information, whether we store it in database or in memory, that's going to keep track of "if the user has logged
+in and when the user logs out."
+
+2. JWT based authentication: The idea behind this is that it's stateless. What stateless means is, there's nothing on our backend, API or database
+that actually keeps track or stores some sort of information whether a user is logged in or logged out. 
+
+The power of JSON Web tokens is that the token itself is not stored in DB,API or backend. The token is actually stored on the frontends on our 
+clients which actually keeps track of whether a user is logged in or not.
+
+IMPORTANT POINT: 
+So, we will have to see at the flow of how the user logs in, how a user is essentially authenticated, and then how a user 
+accesses a specific path operation resource or endpoint by using the JWT to ensure that the API knows that we are logged in so that we can 
+actually provide him that important information. 
+
+WHAT'S GOING TO HAPPEN:
+1. The user is going to try and log in. So, ultimately we are going to create a pth operation "/login" and the client is going to pass the email
+and password. 
+2. So, once we get the credentials, first we are going to verify whether the given credentials are valid or not. If the credentials match, then
+we are going to create the JSON Web Token(JWT). REMEMBER, ONLY THE API CARES WHAT'S ACTUALLY IN THE TOKEN AND WHAT IT MEANS.
+3. Once the token is created, then we will send a response back to the client with the token. And once the client has the token, he can start 
+accessing the resources that require authentication. 
+4. So let's say, our application requires a user to be logged in to retrieve posts. What the user can do, he will send a request to the "/posts"
+endpoint, but he will also provide the token in the HEADER OF THE REQUEST. 
+5. And what the API is going to do: First, it will verify if the token is valid. And there's a couple of different steps, which are needed to 
+actually verify if a token is valid. And if the token is Valid, then the API just sends back the data. 
+6. So the API doesn't actually track anything. There's no information being stored on the API. Instead, the client just holds on to the token. 
+And the client provides the token to the API. And if the token is valid, then the necessary operation is performed. 
+
+
+TOKEN DEEP DIVE: See the JW_Deep_dive_2not_encrypted_screenshot
+1. The token is made up of 3 individual pieces: 
+
+a) HEADER: It includes metadata about the token. So, we are going to sign this toke. Think about Hashing the token. So we have to specify the 
+algorithm and the type of token we are going to use. 
+
+b) PAYLOAD: The payload of the token is up to you(developers).You can send any piece of info that you want to send within the payload, you can 
+include anything you want. However, you want to be careful with what you put in the payload because it's important to understand that the token
+itself is not excrypted. And so that means anybody else in the outside world can take a look at the token, and they can see what's in the 
+payload. So you don't want to put any confidential info, passwords etc. 
+
+- So when we log in, our API is going to create a token and then embed our USER ID into the token. So that when we ask to get all of our posts,
+the API will be able to take a look at the token, verify it's correct, extract to the payload, and it will automatically know the ID of the user
+that requested this. 
+
+c) SIGNATURE: Signature is a combination of 3 things: Header, Payload and Secret. So, there's a special passowrd that we are going to keep on 
+our API. This is only know to API and no one else will know it. And it's probably the most important thing in our whole authentication
+system. We essentially take 3 these 3 info: Header, Payload and Signature. Then we pass this info into the signing algorithm, which is HS256 and 
+then it's going to return a signature. 
+This signature is valid because we are going to use this signature to determine if the token is valid, because we don't want anyone else 
+tampering with our tokens. This signtaure is here to make sure that no one has tampered with our specific token. 
+
+IMPORTANT NOTE: The main points to note here:
+1. There's no encryption in the above process. Anyone can see the data, the signature is just there for data integrity. And that means no one 
+has tampered with the data and data in the token is intact. 
+
+
+SIGNATURE DEEP DIVE: Why we need Signature within the token(see screenshot Purpose of Signature_3)
+This signature only ensures that data integrity is still valid, that no one has tweaked any of the bits, no one's changed any of the data.
+That's all the signatures can do. It can just verify that it hasn't been changed.
+
+
+-----------------------LOGGING IN USER----------------------------------
+- Here we will see how we are going to handle the logging in the user. More specifically, how do we actually verify that the user 
+credentials are correct, because it's not going to be exactly the same way as we think.See the Logging in User screenshot 4.
+
+- When the user hits the login endpoint, he is going to provide the login and password. When the user sends his password, it's just a regular
+plain text.
+
+- When the credentials hit the API, what happens is, the credentials hit the databases to try to find the user based off his email or his 
+username. And the database is going to send all the info about that user, which includes the password. 
+
+- However, when we created the logic for password, we have stored the HASH version of the password in the database so that if anyone hacks 
+our database, they cannot crack the passwords.
+
+- So now we have to compare the password given by the user which is in plain text and the hashed password present in the database.
+How do we compare the two if they are equal? We will hash the password given the user in his attempt for login and will compare it with 
+the hash password given in the database. If they are equal and correct, then the token for the user will be created and send it to the client. 
+
+- Check the auth.py file for creating the functionality for log in of the user. 
+-------------------------------------------------------------------------------------------------------------------------
+
+-----------------------CREATING THE TOKEN FOR THE LOGIN (VERY VERY IMPORTANT)----------------------------------
+
+1. We need to install python-jose to generate and verify the JWT tokens in Python: pip install "python-jose[cryptography]"
+
+2. Check the OAUTH2.py file for the full code implementation.
+
+3. There will be 3 pieces of info for our token. There's also 3 other things about the token that we need to provide.  
+SECRET_KEY, ALGORITHM that we want to use, Expiration Time of the token so that we can dictate how long a user should be logged in 
+after they actually perform a login operation. 
+
+4. We are going to define the function create_access_token. This function is going to have the payload. So whatever data we want to encode into 
+the token, we have to provide that. We will pass a variable called data, which is of type dictionary.Go through the function to get the details
+in oauth2.py. 
+
+5. def login(user_credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+- By using OAuth2PasswordRequestForm = Depends(), we are setting up a dependency kind of like we did with the databases. And this is going to 
+require us to retrieve the credentials. And then FastAPI is automatically going to store it inside in the variable called "user_credentials".
+
+6. NOTE TO REMEMBER: When we use the OAuth2PasswordRequestForm to retrieve the user's attempted credentials, it's going to store it in the field
+called "username" and not the field called "email".
+
+Summary: We learned how to log in a user by sending a request to the login endpoint and providing the username and password. And our API will
+then return an access token, which the user can then use to retrieve the data from our API. So anytime he needs to access an endpoint that
+requires a user to be logged in, he will just send this JSON WEB TOKEN in the payload and then our API has to actually validate the token.
+
+-------------------------------------------------------------------------------------------------------------------------
+
+-----------------------LOGIC FOR VERIFYING IF THE TOKEN IS STILL VALID----------------------------------
+
+- This section discusses the logic for verifying if the token is still valid, the user has not tampered with it, as well as verifying that the 
+token hasn't expired. 
+
+- First, we have to define a schema for the access token and token type. We will also set up the schema for the token data so that the data we 
+embedded into our access token, so we can say token data base model. 
+
+- Create the function to verify the access token. Go through the function to get the details in oauth2.py. 
+
+Summary:
+
+1. Anytime we have a specific endpoint that should be protected, and that means that the user needs to be logged in to use it. 
+
+2. Let's say, Users who want to be able to create the post, they need to be logged in. What we can do is we can just add the extra 
+dependency into the path operation function. 
+
+3. So in post_orm.py in create_posts, we are going add a dependency of user log in, in the create_posts path operation. 
+
+4. So anytime anyone wants to access a resource that requires them to be logged in, we are going to expect that they provide an access token. 
+And then we provide the login dependency, which is going to call the get_current_user function, then we pass in the token that comes from the 
+request, then we are going to verify access token, and then it's going to provide all of the logic for verifying that the token is okay, and
+there's no errors.  
+
+-------------------------------------------------------------------------------------------------------------------------
+
+------------------------------------FETCHING USER IN PROTECTED ROUTES---------------------------------------------
+
+Q: Why do we have get_current_user function when we can directly call the verify_access_token function?
+Ans: 1) The idea behind this function is that once the verify access token returns the token data, which is the ID, the get_current_user
+    function should actually fetch the user from the database. And so that way we can attach the user to any path operation and then we can 
+    perform any necessary logic. 
+    
+    2) So, get_current_user function is where you query your database to grab the user and then return the user. And then whatever you return 
+    in the get_current_user function is ultimately what allows any of your other routes to get whatever you are returning from the function. 
+
+- We can implement this in another way as well, where if we want each of our path operations to fetch the user themselves, they have the ID, 
+so they can do it themselves. 
+
+- We can also do it automatically within the get_current_user function as well. Kindly see the implementation in oauth2.py file.
+
+VERY VERY VERY IMPORTANT NOTE: SEE THE POSTMAN ADVANCED FEATURES PART IN THE VIDEO FOR REVISION PURPOSE.
+
+-------------------------------------------------------------------------------------------------------------------------
+
+------------------------------------SQL RELATIONSHIPS---------------------------------------------
+
+- Here we have set up the Foreign key in table using SQLALCHEMY Method.
+
+- As well as we have made changes accordingly in the code in models.py, schemas.py as well as in create_posts route of posts_orm to get the 
+owner_id to the end user, so that the user knows which user has created the particular specific post he/she is fetching from the database.
+
+-Added in posts_orm.py i0n create_posts route -      new_post = models.Post(owner_id=current_user.id, **post.model_dump())
+
+- At this point, we have the authentication set up for DELETE and UPDATE post. However, there is no check to make sure that the user is DELETING
+his own posts. Right now, anyone can delete anyone posts. 
+
+- We will update the delete and update functionality where we will check that user only gets to delete their own posts and no one 
+else.
+
+- The command for that is given by as:     
+
+    if post.owner_id != oauth2.get_current_user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                detail=f"Not authorized to perform requested action !!")
+
+
+Q: What does the "relationship" keyword in the SQLALCHEMY models do?
+Ans: 1. Whenever we will create a relationship between two classes in SQLALCHEMY, we will reference a defined class in another class in the 
+models.py file. For eg: owner = relationship("User").
+
+2. What this does is, it's automatically going to create another property for our post, so that when we retrieve a post, it's going to return 
+an owner property. And whatit's going to do - It's going to figure out the relationship to user. So, it's actually going to fetch the user 
+based off of the owner ID and return that for us. And there's nothing else we have to do.
+
+3. One advatage of SQLALCHEMY is these relationships will automatically make it so that it fetches that data for us so that we don't have to 
+manually do it ourselves. 
+
+------------------------------------------------------------------------------------------------
+
+------------------------------------QUERY PARAMETERS---------------------------------------------
+
+WEB ADDRESS : https://www.yelp.com/search?find_desc=Restaurants&find_loc=San+Francisco%2C+CA
+
+- Domain name - www.yelp.com. This is kind of like IP Address. 
+- /search - This is the specific search endpoint that we want to reach. 
+- But everything to the right of Question mark(?) is referred to as the QUERY PARAMETERS. 
+- A Query Parameter is an optional key value pair that appears to the right of the question mark. And these query parameters allow us to filter
+the results of a request.
+For eg: If we are trying to retrieve posts, may be want the posts that have been created in the last 2 hours. May be, we want posts that 
+have received over 100 likes etc. 
+- These things can be done with the help of a query parameter, where we could just pass in a key and a pair, and can say, I want to find 
+posts that are less than 2 hours old. 
+- All those other operations in API like pagination, these things are going to be done with query parameters. 
+
+- Limit and Skip functionality: Added limit and skip parameters in the get orm path function to retrive and skip the specific number of posts. 
+- Search functionality: We should be able to search for the posts based on the words given in it. 
+
+------------------------------------------------------------------------------------------------
+
+------------------------------------ENVIRONMENT VARIABLES---------------------------------------------
+
+- An environment variable is a variable that you configure on a computer. Doesn't matter the operating system, they all support it.
+- And when you configure an environment variable on your computer, any application that's running on that computer will be able to 
+access it. 
+
+- We will have to perform some kind of validation to ensure that all of the right environment vairables have been set up to your application to 
+actually run properly. And it's important to understand that when you read an ENVIRONMENT VARIABLE, it's always going to come out as a string
+which is fine, but it just means that you have to do all of the validation in code. 
+- We can use Pydantic to perform all of that validation for our environment variables. 
+- Check config.py file in the main_files folder of the app. 
+-Within the FASTAPI Directory, we will create a new file called ".env". This file is going to contain all of our environment variables.
+
+- VERY VERY VERY IMPORTANT NOTE: To load the .env file in config.py use the below commands since class Config doesn't work to load .env file.
+"from dotenv import load_dotenv
+load_dotenv()"
+
+- You never check the .env file into git. Make sure to mention it in the gitignore file. 
+
+- When we move to production, we can set of all the environment variables values on the machine inside the config.py file, and it's going to 
+automatically import it and then update those values whenever we reference them. 
+
+-----------------------------------------------------------------------------------------------------
+
+------------------------------------VOTING SYSTEM FUNCTIONALITY IMPLEMENTATION---------------------------------------------
+- Users should be able to like a post.
+- Should only be able to like a post once.
+- Retrieving posts should also fetch the total number of likes. 
+- Refer to the screenshots as well as vote.py file for the implementation of this functionality.
+- See the SQL Join part of this implementation of Postgres - VERY VERY IMPORTANT since you skipped it. 
+- Check out the codes for routers get all posts and get one post to check the functionality implemented to get the post along with votes.
+- We will need to implement the same functionality when implmenting with SQL Queries.
+
+------------------------------------------------------------------------------------------------------------------------------
+
+------------------------------------ALEMBIC MIGRATION IMPLEMENTATION---------------------------------------------
+
+- LIMITATION OF SQLALCHEMY: SQLALCHEMY doesn't allow us to modify the tables, it doesn't allow us to create extra columns, delete columns, 
+add Foreign key constraints. 
+REASON BEHIND LIMITATION: When we define these models, what SQLALCHEMY does, it checks to see if the specific table name already exists in our 
+PostgRes database, and if it does, it's not going to touch it. So if we make any changes, it will never push out those changes. It will 
+create only those tables, if it doesn't already see a table with that specific name. 
+
+ALEMBIC: It's a database migration tool that allow us to make incremental changes to our database and actually track it, kind of like what 
+we do with the code. 
+
+1. pip install alembic.
+
+2. Initialized a new scripts directory for alembic using "alembic init alembic" command. alembic is the name of the new directory."
+
+3.  Within the alembic folder , got o env.py file, where you have to add two things to make things work:
+3.1 Because Alembic works with SQLALCHEMY, and the models you build with SQLALCHEMY, we need to make sure that it has access to our Base Object
+in the models.py file. Change the Target_metadata=None to Target_metadata=Base.metdata . We atre doing to this to allow alembic to read all the 
+models in the models.py file. 
+3.2 To override the "sqlalchemy.url" path in the alembic.ini file, we will mention the sqlalchemy path the env.py file in alembic directory by 
+importing config file from the app folder. 
+
+4. Step by step process to setup tables in Postgresql using alembic:
+4.1 In alembic, when we want to make a change in the database, so as to track all of the changes and modifications happening in the database, 
+we create a revision file. 
+- alembic revision -m "create posts table": This revision is going to be responsible for creating a post table. It will create a file under 
+the versions folder. 
+- in the file "create_posts_table.py" under versions folder, there are 2 functions upgrade and downgrade.
+- Upgrade: When we run the upgrade, it runs the commands for making the changes that you want to do.So, we want to create a post table.
+So we will put all of the logic for creating a post table within this function.  
+- Downgrade: And if we ever want to rollback any of the changes we made, then we will have to put all of that logic in the downgrade function 
+to handle removing the table. 
+
+VERY VERY IMPORTANT NOTE: IAM FACING ISSUE WITH THE IMPORT OF BASE FROM MODELS.PY FROM MAIN_FILES DIRECTORY IN ENV.PY FILE IN ALEMBIC FOLDER.
+STILL STRUGGLING TO FIND OUT HOW IT CAN BE RESOLVED. MOVING ON TO THE PART OF DEPLOYMENT AND TESTING.
+
+----------------------------------------------PRE-DEPLOYMENT CHECKLIST-------------------------------------------------------------------------
+
+1. CORS POLICY:
+
+Q: What happens when we send a request to our API from a web browser insted of our own computer using Postman?
+Ans: Use this command -> fetch('http://localhost:8000/').then(res=>res.json()).then(console.log) on Google Chrome -> inspect -> console. 
+
+Definition: Cross Origin Resource Sharing(CORS) allows you to make requests from a web browser on one domain to a server on a different 
+domain. By default our API will only allow web browsers running on the same domain as our server to make requests to it. 
+
+2. SETTING UP GIT AND REPOSITORY FOR OUR CODE - VERY VERY VERY IMPORTANT
+- Before creating a git repo - save all the library versions in requirements.txt by using command - pip freeze > requirements.txt
+- To install  the requirements.txt -> pip install -r requirements.txt
+
+- First steps after the Git repository is created:
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/gauti1409/FastAPI_Project.git
+git push -u origin main

@@ -1,0 +1,1 @@
+Path of Dbeaver scripts: C:\Users\Dhruv\AppData\Roaming\DBeaverData\workspace6\General\Scripts\LEARNING_PRODUCT_SCRIPT.sql

@@ -1,0 +1,28 @@
+1. To create a virtual environment for a project: py -3 -m venv venv_name
+Note: venv_name is the name given to the virtual environment which can be anything. 
+
+2. After creating virtual environment, remember to set the Python Interpreter path from virtual environment.
+Steps: View > Cmd Pallete > Python Interpreter Path > Enter python.exe path and press enter.
+Check on the right bottom that python from virtual environment is selected. 
+
+3. To activate virtual environment use command in the Project directory: venv/Scripts/activate.bat
+
+4. To deactivate the virtual environment, use command: deactivate
+
+5. To install all dependencies of fastapi: pip install fastapi[all]
+
+6. To run the live server in FastAPI: "uvicorn main:app". But if you change your code, to reflect those changes on the webpage, you will
+have to restart the server.
+
+7. To automatically reload the made changes without restarting the server, we will have to use the below command:
+"uvicorn main:app --reload". This command can be used for a developer environment but not in the production environment since we won't be 
+making changes to the production environment.
+
+8. Till now we have been using our Web Brwoser to generate the HTTP requests to test our API.
+But to test our APIs we can use the tool called as "Postman". Postman is a tool that just allows us to construct our own HTTP requests. 
+
+9. pip freeze or pip list -> To see the list of all the packages installed. 
+
+10. Before creating a git repo - save all the library versions in requirements.txt by using command - pip freeze > requirements.txt
+- To install  the requirements.txt -> pip install -r requirements.txt
+

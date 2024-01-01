@@ -676,7 +676,7 @@ to handle removing the table.
 VERY VERY IMPORTANT NOTE: IAM FACING ISSUE WITH THE IMPORT OF BASE FROM MODELS.PY FROM MAIN_FILES DIRECTORY IN ENV.PY FILE IN ALEMBIC FOLDER.
 STILL STRUGGLING TO FIND OUT HOW IT CAN BE RESOLVED. MOVING ON TO THE PART OF DEPLOYMENT AND TESTING.
 
-----------------------------------------------PRE-DEPLOYMENT CHECKLIST-------------------------------------------------------------------------
+----------------------------------------------CORS POLICY AND INITIAL GITHUB SETUP-------------------------------------------------------------------------
 
 1. CORS POLICY:
 
@@ -691,9 +691,12 @@ domain. By default our API will only allow web browsers running on the same doma
 - To install  the requirements.txt -> pip install -r requirements.txt
 
 - First steps after the Git repository is created:
-git init
-git add README.md
-git commit -m "first commit"
-git branch -M main
-git remote add origin https://github.com/gauti1409/FastAPI_Project.git
-git push -u origin main
+1. git init
+2. git add README.md: instead of this we used "git add --all"
+3. git commit -m "first commit". If for the first time you are using github then:
+3.1: git config --global user.email "you@example.com" - SET UP YOUR EMAIL.
+3.2 git config --global user.name "Your Name" - SET UP YOUR USERNAME. Then run the git commit -m "initial commit" command.
+4. Set what our Branch is: git branch -M main
+5. The we will have to set up the remote branch. 
+This is what is going to allow us to store all of our code on GitHub: git remote add origin https://github.com/gauti1409/FastAPI_Project.git
+6. This command means we are going to push all of our code upto github: git push -u origin main

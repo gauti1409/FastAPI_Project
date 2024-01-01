@@ -700,3 +700,12 @@ domain. By default our API will only allow web browsers running on the same doma
 5. The we will have to set up the remote branch. 
 This is what is going to allow us to store all of our code on GitHub: git remote add origin https://github.com/gauti1409/FastAPI_Project.git
 6. This command means we are going to push all of our code upto github: git push -u origin main
+
+To push changes into the current branch into the git: 
+1. git branch - check current branch
+2. git status - check the state of your codebase
+3. git add. - add all untracke files
+4. git commit -m "Write doen your message for the respective change made"
+5. git pull origin main : where main is the name of the branch
+6. git push origin main: where main is the name of the branch. 
+Link: https://stackoverflow.com/questions/42820840/how-to-push-changes-to-branch

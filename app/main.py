@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from main_files import database, models
+from app.main_files import database, models
 from routers import post, users, post_orm, users_orm, auth, vote
 import config
 import uvicorn

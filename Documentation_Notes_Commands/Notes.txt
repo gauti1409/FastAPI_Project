@@ -709,3 +709,11 @@ To push changes into the current branch into the git:
 5. git pull origin main : where main is the name of the branch
 6. git push origin main: where main is the name of the branch. 
 Link: https://stackoverflow.com/questions/42820840/how-to-push-changes-to-branch
+
+--------------------------------------------------------------------------------------------------------------------------
+
+------------------------------------DEPLOYMENT ON HEROKU ----------------------------------------------------------------
+Installation Link for Heroku: https://devcenter.heroku.com/articles/getting-started-with-python#set-up
+- Type "heroku login" in terminal and enter your credentials in Google chrome to validate, then you can see in the terminal you been logged in.
+Deployment apps: Render, Railway and Cyclic 
+- Use this command to put in start command in render application: uvicorn main:app --host 0.0.0.0 --port $PORT

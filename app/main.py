@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 # from main_files import database, models
 from .main_files import database, models
-from routers import post, users, post_orm, users_orm, auth, vote
+from .routers import post, users, post_orm, users_orm, auth, vote
 import config
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware

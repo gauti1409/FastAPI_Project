@@ -4,9 +4,10 @@ from sqlalchemy.orm import sessionmaker
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
-import config
+from ..config import settings
+# import config
 
-settings = config.settings
+# settings = config.settings
 
 
 # Format of a Connection String to be passed into the SQL ALCHEMY

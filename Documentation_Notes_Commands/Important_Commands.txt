@@ -26,3 +26,22 @@ But to test our APIs we can use the tool called as "Postman". Postman is a tool 
 10. Before creating a git repo - save all the library versions in requirements.txt by using command - pip freeze > requirements.txt
 - To install  the requirements.txt -> pip install -r requirements.txt
 
+11. Commands for activating and removing a virtual environment:
+- source venv/bin/activate
+- pip freeze > requirements.txt
+- pip uninstall -r requirements.txt -y
+- deactivate
+- rm -r venv/
+
+12. Use the command to run the Dockerfile: docker build -t fastapi . 
+- Checking DOCKER IMAGE : docker image ls
+- docker-compose up -d
+- docker ps -a
+- docker-compose down 
+- docker-compose up --build
+- docker logs fastapi-api-1
+- docker image rm -f name_of_the_image
+-Previous URL in the Postman : {{URL}}sqlalchemy_users
+
+13. To run a script in terminal: py -3 .\tests\mytest.py
+

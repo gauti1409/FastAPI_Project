@@ -12,10 +12,14 @@ create table social_media_posts(
 insert into fastapi_db.public.social_media_posts (title, content, published) values ('first post', 'my first post !!!!', true),
 											   ('second post', 'my second post !!!', true);
 											  
-insert into fastapi_db.public.posts (title, content, published) values ('first post', 'my first post !!!!', true),
-											   ('second post', 'my second post !!!', true);
+insert into fastapi_db.public.posts (title, content, published, owner_id) values ('first post', 'my first post !!!!', true, 1),
+											   ('second post', 'my second post !!!', true, 1);
 											  
 insert into fastapi_db.public.users (id, email, password) values(1, 'john@gmail.com', 'abcd'),
 																(2, 'cindy@gmail.com', 'abcde');
 											   
 delete from fastapi_db.public.social_media_posts ;
+delete from fastapi_db.public.posts;
+drop table fastapi_db.public.posts;
+
+select * from fastapi_db.public.posts;

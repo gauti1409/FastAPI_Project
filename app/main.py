@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 # from main_files import database, models
+# from routers import post, users, post_orm, users_orm, auth, vote
+# import config
 from .main_files import database, models
 from .routers import post, users, post_orm, users_orm, auth, vote
 from . import config
@@ -34,6 +36,11 @@ app.include_router(users.router)
 app.include_router(post_orm.router)
 app.include_router(users_orm.router)
 app.include_router(vote.router)
+
+
+@app.get("/")
+def root():
+    return {"message": "Hello World !!"}
 
 
 if __name__ == "__main__":

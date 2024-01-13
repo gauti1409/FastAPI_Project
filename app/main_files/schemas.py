@@ -30,8 +30,8 @@ class Post(PostBase):
     owner_id: int
     owner: UserOut
 
-    # class Config:
-    #     orm_mode = True
+    class Config:
+        orm_mode = True
 
 
 class PostOut(BaseModel):

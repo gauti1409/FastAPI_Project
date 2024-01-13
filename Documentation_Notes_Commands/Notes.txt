@@ -712,8 +712,102 @@ Link: https://stackoverflow.com/questions/42820840/how-to-push-changes-to-branch
 
 --------------------------------------------------------------------------------------------------------------------------
 
-------------------------------------DEPLOYMENT ON HEROKU ----------------------------------------------------------------
+------------------------------------DEPLOYMENT ON RENDER----------------------------------------------------------------
 Installation Link for Heroku: https://devcenter.heroku.com/articles/getting-started-with-python#set-up
 - Type "heroku login" in terminal and enter your credentials in Google chrome to validate, then you can see in the terminal you been logged in.
 Deployment apps: Render, Railway and Cyclic 
+
+
+VERY VERY VERY IMPORTANT: 
 - Use this command to put in start command in render application: uvicorn main:app --host 0.0.0.0 --port $PORT
+- WEB URL : https://fastapi-service-17lk.onrender.com/docs
+- EXTERNAL URL TO CONNECT THROUGH DATABASE:
+postgres://postgres_fastapi:KBGOommLVi3P7niETCSl4qboDsMn59gF@dpg-cmasbdgcmk4c73e5sogg-a.oregon-postgres.render.com/fastapi_db_jhkw
+
+Database = fastapi_db_jhkw
+Server/Host = dpg-cmasbdgcmk4c73e5sogg-a.oregon-postgres.render.com
+User Name = postgres_fastapi
+Port = 5432 (Postgres default)
+Password = KBGOommLVi3P7niETCSl4qboDsMn59gF
+
+-- JUST TO REMEMBER THE USER CREDENTIALS  
+{
+  "email": "Dhruv@example.com",
+  "password": "dhruv"
+}
+
+{
+  "email": "user@example.com",
+  "password": "string"
+}
+
+--------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------DOCKERIZATION----------------------------------------------------------------
+
+- Here, we are going to see how we can setup our FASTAPI environment within a docker based environment. And we will also see how to setup a
+Postgres environment within Docker. 
+- Here, we will have to figure out an IMAGE that we are going to use for our FASTAPI, a Docker Container. 
+- WHAT WE ACTUALLY WANT: We just want to start up the container, which is made from the image, and that should have everything that it needs.
+We shouldn't have to do anything explicitly like getting the source code, installing dependencies etc. And it should just start working right away.
+
+- First we will have to create our own Custom Image, which get started off by selecting a Base Python Image. We will customize that image 
+by copying our source code into it, and installing all the dependencies, and setting up a few other details. 
+
+- IMPORTANT REMINDER: NEED TO COMPLETE THIS DOCKERIZATION IN DETAIL.
+--------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------TESTING THE APP----------------------------------------------------------------
+PYTEST: It is an automated testing library, where we can define a whole bunch of tests to test a majority of the functionality of the code.
+This way, if we make any changes in our code, we can run tests to see if we have broken anything. 
+
+- A test is just a function or a method within a class. 
+- ASSERT: Anhytime you assert a true value in Python code, nothing is going to happen, the code just runs. However, if you assert a false value 
+that means it's going to throw an error. It's no different than throwing or raising an error. In python, it's just a simple way of doing that for 
+testing purposes.
+
+- IMPORTANT: AUTODISCOVERY OF TESTS: 
+1. The naming conventions of the files used for testing must follow convention: test_*.py or *_test.py
+
+2. The functions within the test files must follow the convention: "test" prefixed functions or methods outside of class,
+otherwise pytest will not be able to autodiscover the files and tests within your app. 
+
+3. "pytest -v" : It increases verbosity meaning gives detailed description, which test function was tested and whether it is passed or not. 
+
+4. By default Pytest will not show the print statements in the terminal. If we want to see the print statements as well along with the 
+verbosity, we will have to pass the statement: "pytest -v -s".
+
+5. @pytest.mark.parametrize(var1, var2, result, [(3,2,6),(7,8,15)]) : 
+If we want to give multiple paramaters so as to test the function for different values, we can use this decorator to declare the variables and 
+give in the values to test the required function. 
+
+6. FIXTURES: It's a function that gets run before each one of your tests, or at least the specific tests that you want, so as to avoid 
+repetitive test coding for classes. 
+
+7. VERY VERY IMPORTANT NOTE: See the code and make the notes here for rememberance or mention the steps in brief once you go through the code
+again.
+
+8. One of the cool things with fixtures is that we can actually configure a fixture to be dependent on another fixture. So we can 
+essentially pass one fixture into an argument of another fixture. Why we are doing this is because, we want one fixture that returns the
+database object so as to manipulate data ever directly. And we want another fixture that returns my client instance. 
+
+9. Fixtures have a specific scope, that means, when do they run? Right now, in script tests/database.py, they are using the default function
+scope. That means they are going to run before every single function that's dependent on them. So as per the fixture that's been set up, this 
+is what's happening: 
+So in tests/database.pyu file, Client calls session. And session first drops all the tables as first step that were present before, 
+and then it creates all of the new tables in test database. So, we will get a brand new database every single test that we run. That's
+why the user isn't there. 
+
+10.VERY VERY IMPORTANT NOTE: Have a look at the scope of the FIXTURES for function, classes, module, packages and session.
+
+11. In Testing, you don't want to make tests be dependent on other tests. Each and every single test, needs to operate and run independently,
+they should not be reliant on other tests. Right now in our code, until and unless a user is not created, we cannot test the login functionality
+of the user, which is not at all good. So, this is not a valid test and we are doing it wrong.
+
+12. Have a look at the Conftest.py file after above point and see the implementation and points being mentioned in the script. 
+
+13. We will be moving all the code from tests/database.py to tests/conftest.py . When we move all of that code, what will happen is that 
+all the fixtures, i.e. session, client etc. will all be accessible to all the scripts within the test folder automatically. That means, we
+will not have to use any import statements for the conftest in any of the scripts in the test folder. 
+
+14. Go through the Testing once again and understand all of the things done in this project - NOTE TO MYSELF. 
+
+----------------------------------------------------------------------------------------------------------------------------------------

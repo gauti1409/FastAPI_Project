@@ -4,8 +4,10 @@ on: ["push", "pull_request"]
 
 jobs:
   job1:
+    environment:
+      name: testing
     env:
-      DATABASE_HOSTNAME: localhost
+      DATABASE_HOSTNAME: ${{secrets.DATABASE_HOSTNAME}}
       DATABASE_PORT: 5432
       DATABASE_PASSWORD: pass1234
       DATABASE_NAME: fastapi_db
